@@ -2,7 +2,10 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ClipboardList, Cpu, User, Users, Plus, BarChart3 } from 'lucide-react'
+import {
+  ClipboardList, Cpu, User, TrendingUp,
+  Plus, LayoutDashboard, FileText,
+} from 'lucide-react'
 import { cn } from '@/components/ui/cn'
 
 type Role = string
@@ -11,36 +14,46 @@ interface NavItem {
   href: string
   label: string
   icon: React.ElementType
-  roles?: Role[]
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { href: '/orders',    label: 'Órdenes',  icon: ClipboardList                              },
-  { href: '/customers', label: 'Clientes', icon: Users,       roles: ['tenant_admin', 'supervisor', 'commercial'] },
-  { href: '/assets',    label: 'Activos',  icon: Cpu,         roles: ['tenant_admin', 'supervisor', 'technician'] },
-  { href: '/reports',   label: 'Reportes', icon: BarChart3,   roles: ['tenant_admin', 'supervisor', 'commercial'] },
-  { href: '/profile',   label: 'Perfil',   icon: User                                       },
-]
-
+const MANAGER_ROLES = ['tenant_admin', 'supervisor', 'commercial']
 const CAN_CREATE_ORDER: Role[] = ['tenant_admin', 'supervisor']
 
-interface Props {
-  role: Role
-}
+interface Props { role: Role }
 
 export function BottomNav({ role }: Props) {
   const pathname = usePathname()
 
-  const visible = NAV_ITEMS.filter((item) =>
-    !item.roles || item.roles.includes(role)
-  )
+  const isManager   = MANAGER_ROLES.includes(role)
+  const showFab     = CAN_CREATE_ORDER.includes(role)
+  const isTechnician = role === 'technician'
 
-  const showFab = CAN_CREATE_ORDER.includes(role)
+  let items: (NavItem | null)[]
 
-  // Con FAB ocupamos el centro; sin FAB distribuimos uniformemente
-  const slots = showFab
-    ? [visible[0], visible[1], null, ...visible.slice(2)]
-    : visible
+  if (isTechnician) {
+    items = [
+      { href: '/orders',  label: 'Órdenes', icon: ClipboardList },
+      { href: '/assets',  label: 'Activos', icon: Cpu           },
+      { href: '/profile', label: 'Perfil',  icon: User          },
+    ]
+  } else if (showFab) {
+    // admin / supervisor — FAB in center
+    items = [
+      { href: '/dashboard',    label: 'Inicio',   icon: LayoutDashboard },
+      { href: '/orders',       label: 'Órdenes',  icon: ClipboardList   },
+      null,                                                              // FAB slot
+      { href: '/opportunities',label: 'Pipeline', icon: TrendingUp      },
+      { href: '/profile',      label: 'Perfil',   icon: User            },
+    ]
+  } else {
+    // commercial — no FAB
+    items = [
+      { href: '/dashboard',    label: 'Inicio',     icon: LayoutDashboard },
+      { href: '/opportunities',label: 'Pipeline',   icon: TrendingUp      },
+      { href: '/contracts',    label: 'Contratos',  icon: FileText        },
+      { href: '/profile',      label: 'Perfil',     icon: User            },
+    ]
+  }
 
   return (
     <nav
@@ -48,9 +61,8 @@ export function BottomNav({ role }: Props) {
       aria-label="Navegación principal"
     >
       <div className="flex h-16 items-center justify-around px-2">
-        {slots.map((item, i) => {
+        {items.map((item, i) => {
           if (item === null) {
-            // FAB — botón central crear orden
             return (
               <Link
                 key="fab"

@@ -40,7 +40,9 @@ export async function middleware(request: NextRequest) {
   }
 
   if (user && request.nextUrl.pathname === '/login') {
-    return NextResponse.redirect(new URL('/orders', request.url))
+    const role = (user.app_metadata?.role ?? '') as string
+    const dest = ['tenant_admin', 'supervisor', 'commercial'].includes(role) ? '/dashboard' : '/orders'
+    return NextResponse.redirect(new URL(dest, request.url))
   }
 
   return supabaseResponse
