@@ -1,0 +1,15 @@
+{
+  "name": "@voltaryx/config",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./tailwind": "./tailwind.config.js",
+    "./eslint": "./eslint.config.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "tailwindcss": "^3.4.4",
+    "eslint": "^9.0.0"
+  }
+}

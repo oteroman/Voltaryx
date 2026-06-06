@@ -1,0 +1,6 @@
+{
+  "name": "@voltaryx/workflows",
+  "version": "0.1.0",
+  "private": true,
+  "description": "n8n workflow definitions for Voltaryx automations"
+}
