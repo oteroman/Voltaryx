@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   ClipboardList, Cpu, User, TrendingUp,
-  Plus, LayoutDashboard, Package, FileText,
+  Plus, LayoutDashboard, Package, FileText, Radio,
 } from 'lucide-react'
 import { cn } from '@/components/ui/cn'
 
@@ -42,7 +42,7 @@ export function BottomNav({ role }: Props) {
       { href: '/dashboard',    label: 'Inicio',      icon: LayoutDashboard },
       { href: '/orders',       label: 'Órdenes',     icon: ClipboardList   },
       null,                                                                // FAB slot
-      { href: '/inventory',    label: 'Inventario',  icon: Package         },
+      { href: '/dispatch',     label: 'Despacho',    icon: Radio           },
       { href: '/profile',      label: 'Perfil',      icon: User            },
     ]
   } else {
