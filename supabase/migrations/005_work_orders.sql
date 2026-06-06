@@ -54,14 +54,14 @@ ALTER TABLE work_orders ENABLE ROW LEVEL SECURITY;
 -- Técnico: solo sus propias órdenes
 CREATE POLICY "wo_technician_own" ON work_orders
   FOR ALL USING (
-    tenant_id = auth.tenant_id()
+    tenant_id = get_tenant_id()
     AND (
       assigned_to = auth.uid()
       OR EXISTS (
         SELECT 1 FROM profiles
         WHERE id = auth.uid()
           AND role IN ('tenant_admin','supervisor','super_admin')
-          AND tenant_id = auth.tenant_id()
+          AND tenant_id = get_tenant_id()
       )
     )
   );
@@ -115,7 +115,7 @@ CREATE INDEX idx_woa_asset       ON work_order_assets(asset_id);
 
 ALTER TABLE work_order_assets ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "woa_tenant_isolation" ON work_order_assets
-  FOR ALL USING (tenant_id = auth.tenant_id());
+  FOR ALL USING (tenant_id = get_tenant_id());
 
 CREATE TRIGGER woa_updated_at
   BEFORE UPDATE ON work_order_assets

@@ -31,7 +31,7 @@ CREATE INDEX idx_opp_stage    ON opportunities(stage);
 
 ALTER TABLE opportunities ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "opp_tenant_isolation" ON opportunities
-  FOR ALL USING (tenant_id = auth.tenant_id());
+  FOR ALL USING (tenant_id = get_tenant_id());
 
 CREATE TRIGGER opportunities_updated_at
   BEFORE UPDATE ON opportunities
@@ -77,7 +77,7 @@ CREATE INDEX idx_contracts_status   ON contracts(status);
 
 ALTER TABLE contracts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "contracts_tenant_isolation" ON contracts
-  FOR ALL USING (tenant_id = auth.tenant_id());
+  FOR ALL USING (tenant_id = get_tenant_id());
 
 CREATE TRIGGER contracts_updated_at
   BEFORE UPDATE ON contracts

@@ -35,7 +35,7 @@ CREATE INDEX idx_findings_status     ON findings(status);
 
 ALTER TABLE findings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "findings_tenant_isolation" ON findings
-  FOR ALL USING (tenant_id = auth.tenant_id());
+  FOR ALL USING (tenant_id = get_tenant_id());
 
 CREATE TRIGGER findings_updated_at
   BEFORE UPDATE ON findings
@@ -68,4 +68,4 @@ CREATE INDEX idx_photos_finding    ON photos(finding_id);
 
 ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "photos_tenant_isolation" ON photos
-  FOR ALL USING (tenant_id = auth.tenant_id());
+  FOR ALL USING (tenant_id = get_tenant_id());

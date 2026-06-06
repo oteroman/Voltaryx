@@ -15,10 +15,10 @@ CREATE TABLE tenants (
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Función para obtener tenant_id del JWT (usada por RLS)
-CREATE OR REPLACE FUNCTION auth.tenant_id()
+-- Helper: leer tenant_id del JWT (app_metadata). Disponible en RLS.
+CREATE OR REPLACE FUNCTION get_tenant_id()
 RETURNS UUID
-LANGUAGE sql STABLE
+LANGUAGE sql STABLE SECURITY DEFINER
 AS $$
   SELECT NULLIF(
     current_setting('request.jwt.claims', true)::jsonb -> 'app_metadata' ->> 'tenant_id',

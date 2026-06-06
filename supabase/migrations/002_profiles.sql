@@ -21,7 +21,7 @@ CREATE INDEX idx_profiles_tenant ON profiles(tenant_id);
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "profiles_select_same_tenant" ON profiles
-  FOR SELECT USING (tenant_id = auth.tenant_id());
+  FOR SELECT USING (tenant_id = get_tenant_id());
 
 CREATE POLICY "profiles_update_own" ON profiles
   FOR UPDATE USING (id = auth.uid());

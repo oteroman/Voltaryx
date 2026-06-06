@@ -20,7 +20,7 @@ CREATE INDEX idx_customers_tenant ON customers(tenant_id);
 
 ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "customers_tenant_isolation" ON customers
-  FOR ALL USING (tenant_id = auth.tenant_id());
+  FOR ALL USING (tenant_id = get_tenant_id());
 
 CREATE TRIGGER customers_updated_at
   BEFORE UPDATE ON customers
@@ -51,7 +51,7 @@ CREATE INDEX idx_sites_customer ON sites(customer_id);
 
 ALTER TABLE sites ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "sites_tenant_isolation" ON sites
-  FOR ALL USING (tenant_id = auth.tenant_id());
+  FOR ALL USING (tenant_id = get_tenant_id());
 
 CREATE TRIGGER sites_updated_at
   BEFORE UPDATE ON sites
