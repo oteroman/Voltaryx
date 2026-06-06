@@ -60,6 +60,7 @@ export default function NewContractPage() {
 
     const sb = createClient()
     const { error: err } = await sb.from('contracts').insert({
+      contract_number:    '',          // trigger auto-generates CT-YYYYMM-NNNN
       customer_id:        customerId,
       type,
       status:             'draft',
