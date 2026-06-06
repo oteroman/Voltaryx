@@ -65,12 +65,18 @@ export default async function InventoryPage() {
             <h1 className="font-display text-xl font-bold text-ink-primary">Inventario</h1>
             <p className="mt-0.5 text-sm text-ink-secondary">{all.length} unidades totales</p>
           </div>
-          {canEdit && (
-            <Link href="/inventory/new"
-              className="flex h-9 items-center gap-1.5 rounded-lg bg-volt-500 px-3 text-sm font-semibold text-ink-inverse hover:bg-volt-400 transition-colors">
-              <Plus size={16} strokeWidth={2.5} />Agregar
+          <div className="flex items-center gap-2">
+            <Link href="/products"
+              className="flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold text-ink-secondary hover:bg-surface-2 transition-colors">
+              Catálogo
             </Link>
-          )}
+            {canEdit && (
+              <Link href="/inventory/new"
+                className="flex h-9 items-center gap-1.5 rounded-lg bg-volt-500 px-3 text-sm font-semibold text-ink-inverse hover:bg-volt-400 transition-colors">
+                <Plus size={16} strokeWidth={2.5} />Unidad
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* KPIs de estado */}
