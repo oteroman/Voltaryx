@@ -1,13 +1,19 @@
 'use client'
 
 import { useState, useMemo, useCallback } from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import {
   AlertTriangle, ChevronRight, Clock, User2, MapPin,
-  X, Check, Zap, Calendar, Users, ArrowLeft,
+  X, Check, Calendar, Map as MapIcon,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/components/ui/cn'
+
+const TechnicianMap = dynamic(
+  () => import('@/components/dispatch/technician-map'),
+  { ssr: false, loading: () => <div className="flex h-full items-center justify-center text-sm text-ink-tertiary">Cargando mapa...</div> },
+)
 
 /* ── Types ────────────────────────────────────────────────────────────────── */
 interface Order {
@@ -82,7 +88,7 @@ function fmtTime(t: string | null) {
 /* ── Board ────────────────────────────────────────────────────────────────── */
 export function DispatchBoard({ initialOrders, technicians, today, tomorrow }: Props) {
   const [orders,       setOrders]       = useState<Order[]>(initialOrders)
-  const [tab,          setTab]          = useState<'today' | 'tomorrow' | 'week'>('today')
+  const [tab,          setTab]          = useState<'today' | 'tomorrow' | 'week' | 'map'>('today')
   const [assigning,    setAssigning]    = useState<Order | null>(null)
   const [loadingId,    setLoadingId]    = useState<string | null>(null)
   const [error,        setError]        = useState('')
@@ -137,7 +143,6 @@ export function DispatchBoard({ initialOrders, technicians, today, tomorrow }: P
         ? 'bg-volt-500 text-ink-inverse'
         : 'text-ink-tertiary hover:text-ink-secondary')
 
-  /* ── Counts para tabs ── */
   const todayCount    = orders.filter(o => o.scheduled_date === today).length
   const tomorrowCount = orders.filter(o => o.scheduled_date === tomorrow).length
   const weekCount     = orders.length
@@ -163,7 +168,7 @@ export function DispatchBoard({ initialOrders, technicians, today, tomorrow }: P
           </Link>
         </div>
 
-        {/* Tabs de fecha */}
+        {/* Tabs de fecha + mapa */}
         <div className="mt-3 flex gap-1 rounded-xl bg-surface-2 p-1">
           <button onClick={() => setTab('today')}    className={tabCls('today')}>
             Hoy <span className="opacity-70">({todayCount})</span>
@@ -174,10 +179,20 @@ export function DispatchBoard({ initialOrders, technicians, today, tomorrow }: P
           <button onClick={() => setTab('week')}     className={tabCls('week')}>
             7 días <span className="opacity-70">({weekCount})</span>
           </button>
+          <button onClick={() => setTab('map')} className={cn(tabCls('map'), 'flex items-center justify-center gap-1')}>
+            <MapIcon size={13} />Mapa
+          </button>
         </div>
       </header>
 
-      <div className="flex flex-col gap-5 px-4 py-4">
+      {/* ── Vista Mapa ── */}
+      {tab === 'map' && (
+        <div className="px-4 py-4" style={{ height: 'calc(100svh - 160px)' }}>
+          <TechnicianMap />
+        </div>
+      )}
+
+      {tab !== 'map' && <div className="flex flex-col gap-5 px-4 py-4">
 
         {error && (
           <p className="rounded-lg bg-critical/10 px-3 py-2 text-sm text-critical">{error}</p>
@@ -263,7 +278,7 @@ export function DispatchBoard({ initialOrders, technicians, today, tomorrow }: P
             <p className="text-sm text-ink-secondary">Sin órdenes en este período</p>
           </div>
         )}
-      </div>
+      </div>}
 
       {/* ── Assign Sheet ── */}
       {assigning && (

@@ -7,6 +7,7 @@ import {
   AlertTriangle, Wrench, FileText,
 } from 'lucide-react'
 import { ExecuteButton } from '@/components/orders/execute-button'
+import { LocationTracker } from '@/components/orders/location-tracker'
 
 export const dynamic = 'force-dynamic'
 
@@ -159,6 +160,9 @@ export default async function OrderDetailPage({
             </div>
           </section>
         )}
+
+        {/* Tracking GPS activo cuando el técnico está en ruta o ejecutando */}
+        {canExecute && <LocationTracker orderId={order.id} status={order.status} />}
 
         {/* CTA ejecutar */}
         {canExecute && (
