@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound }     from 'next/navigation'
 import Link             from 'next/link'
-import { ArrowLeft, Building2, MapPin, Phone, User, Plus } from 'lucide-react'
+import { ArrowLeft, Building2, MapPin, User, Plus } from 'lucide-react'
 import { cn } from '@/components/ui/cn'
+import { PortalAccess } from './portal-access'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,14 +34,28 @@ export default async function CustomerDetailPage({
     .eq('customer_id', params.id)
     .order('name')
 
+  const { data: { user } } = await supabase.auth.getUser()
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
-    .eq('id', (await supabase.auth.getUser()).data.user!.id)
+    .eq('id', user!.id)
     .single()
 
   const role     = (profile?.role ?? 'technician') as string
   const canEdit  = ['tenant_admin', 'supervisor'].includes(role)
+  const isAdmin  = role === 'tenant_admin'
+
+  // Portal users for this customer (only fetched for admin)
+  const { data: portalUsersRaw } = isAdmin
+    ? await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .eq('customer_id', params.id)
+        .eq('role', 'client')
+    : { data: [] }
+
+  const portalUsers = (portalUsersRaw ?? []) as { id: string; full_name: string | null; email: string | null }[]
 
   return (
     <div className="flex flex-col">
@@ -119,6 +134,14 @@ export default async function CustomerDetailPage({
             </div>
           )}
         </section>
+
+        {/* Portal de cliente */}
+        {isAdmin && (
+          <PortalAccess
+            customerId={params.id}
+            initialUsers={portalUsers}
+          />
+        )}
 
         {/* Acciones */}
         {canEdit && (
