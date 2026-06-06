@@ -4,7 +4,7 @@ import Link             from 'next/link'
 import {
   ClipboardList, AlertCircle, AlertTriangle, CheckCircle2,
   TrendingUp, Zap, Users, Building2, ChevronRight,
-  Clock, DollarSign, FileWarning, Plus,
+  Clock, DollarSign, FileWarning, Plus, CalendarCheck2,
 } from 'lucide-react'
 import { cn } from '@/components/ui/cn'
 
@@ -203,6 +203,19 @@ export default async function DashboardPage() {
             />
           </div>
         </section>
+
+        {/* ── MANTENIMIENTO PREVENTIVO SHORTCUT ── */}
+        {['tenant_admin', 'supervisor'].includes(role) && (
+          <Link href="/maintenance"
+            className="flex items-center gap-3 rounded-xl border border-volt-500/20 bg-volt-500/5 px-4 py-3 hover:bg-volt-500/10 transition-colors">
+            <CalendarCheck2 size={20} className="flex-shrink-0 text-volt-500" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-ink-primary">Mantenimiento Preventivo</p>
+              <p className="text-xs text-ink-tertiary">Ver estado de visitas PM por contrato</p>
+            </div>
+            <ChevronRight size={16} className="flex-shrink-0 text-ink-tertiary" />
+          </Link>
+        )}
 
         {/* ── HALLAZGOS ABIERTOS ── */}
         {(openFindings?.length ?? 0) > 0 && (

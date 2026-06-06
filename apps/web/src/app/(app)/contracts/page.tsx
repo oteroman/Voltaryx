@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect }     from 'next/navigation'
 import Link             from 'next/link'
-import { Building2, Plus, Calendar, AlertTriangle, CheckCircle2, ChevronRight, Clock } from 'lucide-react'
+import { Building2, Plus, Calendar, AlertTriangle, CheckCircle2, ChevronRight, Clock, CalendarCheck2 } from 'lucide-react'
 import { cn } from '@/components/ui/cn'
 
 export const dynamic = 'force-dynamic'
@@ -60,12 +60,18 @@ export default async function ContractsPage() {
             <h1 className="font-display text-xl font-bold text-ink-primary">Contratos</h1>
             <p className="mt-0.5 text-sm text-ink-secondary">{active.length} activos</p>
           </div>
-          {canEdit && (
-            <Link href="/contracts/new"
-              className="flex h-9 items-center gap-1.5 rounded-lg bg-volt-500 px-3 text-sm font-semibold text-ink-inverse hover:bg-volt-400 transition-colors">
-              <Plus size={16} strokeWidth={2.5} />Nuevo
+          <div className="flex items-center gap-2">
+            <Link href="/maintenance"
+              className="flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold text-ink-secondary hover:bg-surface-2 transition-colors">
+              <CalendarCheck2 size={15} />PM
             </Link>
-          )}
+            {canEdit && (
+              <Link href="/contracts/new"
+                className="flex h-9 items-center gap-1.5 rounded-lg bg-volt-500 px-3 text-sm font-semibold text-ink-inverse hover:bg-volt-400 transition-colors">
+                <Plus size={16} strokeWidth={2.5} />Nuevo
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* KPIs de contratos */}
