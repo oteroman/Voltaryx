@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { LogOut, User, Building2, Shield, HelpCircle } from 'lucide-react'
+import { LogOut, User, Building2, Shield, HelpCircle, Users } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,6 +52,17 @@ export default async function ProfilePage() {
             <Row icon={<Shield size={15} />} label="Plan" value={tenant.plan} capitalize />
           )}
         </section>
+
+        {/* Gestión de equipo — solo admin */}
+        {(profile?.role as string) === 'tenant_admin' && (
+          <Link
+            href="/admin/usuarios"
+            className="flex h-touch w-full items-center justify-center gap-2 rounded-lg border border-border-subtle bg-surface-1 text-base font-medium text-ink-secondary hover:text-volt-500 hover:border-volt-500/30 transition-colors"
+          >
+            <Users size={16} />
+            Gestión de equipo
+          </Link>
+        )}
 
         {/* Ayuda */}
         <Link
