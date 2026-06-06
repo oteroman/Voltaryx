@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next'
+import Script from 'next/script'
 import './globals.css'
+import { themeScript } from '@/components/theme/theme-switcher'
 
 export const metadata: Metadata = {
   title: {
@@ -29,7 +31,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es" className="dark">
+    <html lang="es" data-theme="dark">
+      <head>
+        {/* Inject before first paint to avoid theme flash */}
+        <Script id="theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="bg-void text-ink-primary font-sans antialiased">
         {children}
       </body>

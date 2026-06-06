@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { LogOut, User, Building2, Shield, HelpCircle, Users } from 'lucide-react'
+import { LogOut, User, Building2, Shield, HelpCircle, Users, Palette } from 'lucide-react'
+import { ThemeSwitcher } from '@/components/theme/theme-switcher'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,6 +52,15 @@ export default async function ProfilePage() {
           {tenant && (
             <Row icon={<Shield size={15} />} label="Plan" value={tenant.plan} capitalize />
           )}
+        </section>
+
+        {/* Apariencia */}
+        <section>
+          <div className="mb-3 flex items-center gap-2">
+            <Palette size={14} className="text-ink-tertiary" />
+            <h2 className="text-xs font-bold uppercase tracking-widest text-ink-tertiary">Apariencia</h2>
+          </div>
+          <ThemeSwitcher />
         </section>
 
         {/* Gestión de equipo — solo admin */}

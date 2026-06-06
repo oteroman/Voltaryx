@@ -1,5 +1,8 @@
 import type { Config } from 'tailwindcss'
 
+// All colors use CSS-variable channels so opacity modifiers (bg-volt-500/20) work across themes
+const v = (name: string) => `rgb(var(--c-${name}) / <alpha-value>)`
+
 const config: Config = {
   darkMode: 'class',
   content: [
@@ -10,34 +13,27 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        void:    '#080A0D',
-        surface: {
-          1: '#0F1217',
-          2: '#161B22',
-          3: '#1E2530',
-        },
-        border: {
-          DEFAULT: '#2A3140',
-          subtle:  '#1C2230',
-        },
+        void:    v('void'),
+        surface: { 1: v('s1'), 2: v('s2'), 3: v('s3') },
+        border:  { DEFAULT: v('border'), subtle: v('border-subtle') },
         volt: {
-          100: 'rgba(200,255,0,0.10)',
-          200: 'rgba(200,255,0,0.20)',
-          400: '#D4FF33',
-          500: '#C8FF00',
-          600: '#A0CC00',
+          100: v('volt-100'),
+          200: v('volt-200'),
+          400: v('volt-400'),
+          500: v('volt-500'),
+          600: v('volt-600'),
         },
         ink: {
-          primary:   '#F0F4F8',
-          secondary: '#8B97A8',
-          tertiary:  '#5A6672',
-          disabled:  '#374151',
-          inverse:   '#080A0D',
+          primary:   v('ink-primary'),
+          secondary: v('ink-secondary'),
+          tertiary:  v('ink-tertiary'),
+          disabled:  v('ink-disabled'),
+          inverse:   v('ink-inverse'),
         },
-        critical: { DEFAULT: '#FF4444', bg: 'rgba(255,68,68,0.10)' },
-        warning:  { DEFAULT: '#FF9500', bg: 'rgba(255,149,0,0.10)'  },
-        success:  { DEFAULT: '#00D97E', bg: 'rgba(0,217,126,0.10)'  },
-        info:     { DEFAULT: '#4A9EBF', bg: 'rgba(74,158,191,0.10)' },
+        critical: { DEFAULT: v('critical'), bg: v('critical-bg') },
+        warning:  { DEFAULT: v('warning'),  bg: v('warning-bg')  },
+        success:  { DEFAULT: v('success'),  bg: v('success-bg')  },
+        info:     { DEFAULT: v('info'),     bg: v('info-bg')     },
       },
       fontFamily: {
         display: ['var(--font-space-grotesk)', 'sans-serif'],
@@ -54,11 +50,9 @@ const config: Config = {
         '2xl':  ['30px', { lineHeight: '38px' }],
         '3xl':  ['38px', { lineHeight: '46px' }],
       },
-      spacing: {
-        'touch': '44px',
-      },
-      minHeight: { 'touch': '44px' },
-      minWidth:  { 'touch': '44px' },
+      spacing:    { 'touch': '44px' },
+      minHeight:  { 'touch': '44px' },
+      minWidth:   { 'touch': '44px' },
       borderRadius: {
         'sm': '6px', DEFAULT: '8px', 'md': '10px',
         'lg': '12px', 'xl': '16px',
