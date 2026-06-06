@@ -1,0 +1,33 @@
+# Credenciales y secretos - NUNCA subir al repositorio
+Credentials.txt
+credentials.txt
+.env
+.env.*
+*.env
+
+# Dependencias
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
