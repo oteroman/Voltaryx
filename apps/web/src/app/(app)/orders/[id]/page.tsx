@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Badge } from '@/components/ui/badge'
 import {
   ArrowLeft, MapPin, Phone, Clock,
-  AlertTriangle, ChevronRight, Wrench,
+  AlertTriangle, Wrench, FileText,
 } from 'lucide-react'
 import { ExecuteButton } from '@/components/orders/execute-button'
 
@@ -160,9 +160,20 @@ export default async function OrderDetailPage({
           </section>
         )}
 
-        {/* CTA */}
+        {/* CTA ejecutar */}
         {canExecute && (
           <ExecuteButton orderId={order.id} status={order.status} />
+        )}
+
+        {/* Generar informe — visible cuando está completado */}
+        {order.status === 'completed' && (
+          <Link
+            href={`/orders/${order.id}/report`}
+            className="flex h-touch w-full items-center justify-center gap-2 rounded-lg border-2 border-volt-500 text-volt-500 font-semibold text-base hover:bg-volt-500/10 transition-colors"
+          >
+            <FileText size={18} />
+            Ver Informe Técnico
+          </Link>
         )}
       </div>
     </div>
