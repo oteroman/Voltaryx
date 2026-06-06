@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   ClipboardList, Cpu, User, TrendingUp,
-  Plus, LayoutDashboard, FileText,
+  Plus, LayoutDashboard, Package,
 } from 'lucide-react'
 import { cn } from '@/components/ui/cn'
 
@@ -39,19 +39,19 @@ export function BottomNav({ role }: Props) {
   } else if (showFab) {
     // admin / supervisor — FAB in center
     items = [
-      { href: '/dashboard',    label: 'Inicio',   icon: LayoutDashboard },
-      { href: '/orders',       label: 'Órdenes',  icon: ClipboardList   },
-      null,                                                              // FAB slot
-      { href: '/opportunities',label: 'Pipeline', icon: TrendingUp      },
-      { href: '/profile',      label: 'Perfil',   icon: User            },
+      { href: '/dashboard',    label: 'Inicio',      icon: LayoutDashboard },
+      { href: '/orders',       label: 'Órdenes',     icon: ClipboardList   },
+      null,                                                                // FAB slot
+      { href: '/inventory',    label: 'Inventario',  icon: Package         },
+      { href: '/profile',      label: 'Perfil',      icon: User            },
     ]
   } else {
     // commercial — no FAB
     items = [
-      { href: '/dashboard',    label: 'Inicio',     icon: LayoutDashboard },
-      { href: '/opportunities',label: 'Pipeline',   icon: TrendingUp      },
-      { href: '/contracts',    label: 'Contratos',  icon: FileText        },
-      { href: '/profile',      label: 'Perfil',     icon: User            },
+      { href: '/dashboard',    label: 'Inicio',      icon: LayoutDashboard },
+      { href: '/opportunities',label: 'Pipeline',    icon: TrendingUp      },
+      { href: '/inventory',    label: 'Inventario',  icon: Package         },
+      { href: '/profile',      label: 'Perfil',      icon: User            },
     ]
   }
 
