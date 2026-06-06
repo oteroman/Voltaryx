@@ -4,7 +4,7 @@ import Link             from 'next/link'
 import {
   ClipboardList, AlertCircle, AlertTriangle, CheckCircle2,
   TrendingUp, Zap, Users, Building2, ChevronRight,
-  Clock, DollarSign, FileWarning, Plus, CalendarCheck2,
+  Clock, DollarSign, FileWarning, Plus, CalendarCheck2, Shield,
 } from 'lucide-react'
 import { cn } from '@/components/ui/cn'
 
@@ -40,6 +40,7 @@ export default async function DashboardPage() {
     { data: opportunities },
     { data: contracts },
     { data: upcomingOrders },
+    { data: openOrdersSLA },
   ] = await Promise.all([
     supabase.from('work_orders').select('id, status, priority')
       .eq('scheduled_date', today),
@@ -57,6 +58,9 @@ export default async function DashboardPage() {
       .not('status', 'in', '("completed","cancelled")')
       .gte('scheduled_date', today)
       .order('scheduled_date').order('scheduled_time').limit(6),
+    supabase.from('work_orders')
+      .select('id, priority, created_at, started_at')
+      .not('status', 'in', '("completed","cancelled")'),
   ])
 
   // ── Métricas ─────────────────────────────────────────────────────────────
@@ -83,6 +87,21 @@ export default async function DashboardPage() {
 
   const criticalFindings = (openFindings ?? []).filter(f => f.severity === 'critical')
   const highFindings     = (openFindings ?? []).filter(f => f.severity === 'high')
+
+  // ── SLA breach count ──────────────────────────────────────────────────────
+  const SLA_H: Record<string, { r: number; res: number }> = {
+    critical: { r: 2,  res: 8   },
+    high:     { r: 4,  res: 24  },
+    medium:   { r: 24, res: 72  },
+    low:      { r: 72, res: 168 },
+  }
+  const nowMs = Date.now()
+  const slaBreached = (openOrdersSLA ?? []).filter(o => {
+    const sla = SLA_H[o.priority] ?? SLA_H.medium
+    const elapsedH = (nowMs - new Date(o.created_at).getTime()) / 3600000
+    const startedH = o.started_at ? (new Date(o.started_at).getTime() - new Date(o.created_at).getTime()) / 3600000 : null
+    return startedH !== null ? elapsedH > sla.res : elapsedH > sla.r
+  }).length
 
   return (
     <div className="flex flex-col">
@@ -204,17 +223,36 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        {/* ── MANTENIMIENTO PREVENTIVO SHORTCUT ── */}
+        {/* ── SHORTCUTS: SLA + PM ── */}
         {['tenant_admin', 'supervisor'].includes(role) && (
-          <Link href="/maintenance"
-            className="flex items-center gap-3 rounded-xl border border-volt-500/20 bg-volt-500/5 px-4 py-3 hover:bg-volt-500/10 transition-colors">
-            <CalendarCheck2 size={20} className="flex-shrink-0 text-volt-500" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-ink-primary">Mantenimiento Preventivo</p>
-              <p className="text-xs text-ink-tertiary">Ver estado de visitas PM por contrato</p>
-            </div>
-            <ChevronRight size={16} className="flex-shrink-0 text-ink-tertiary" />
-          </Link>
+          <div className="grid grid-cols-2 gap-2">
+            <Link href="/sla"
+              className={cn(
+                'flex flex-col gap-1 rounded-xl border px-3 py-3 transition-colors',
+                slaBreached > 0
+                  ? 'border-critical/40 bg-critical/5 hover:bg-critical/10'
+                  : 'border-border-subtle bg-surface-1 hover:bg-surface-2',
+              )}>
+              <div className="flex items-center justify-between">
+                <Shield size={16} className={slaBreached > 0 ? 'text-critical' : 'text-ink-tertiary'} />
+                {slaBreached > 0 && (
+                  <span className="rounded-full bg-critical px-1.5 py-0.5 text-xs font-bold text-white">
+                    {slaBreached}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs font-semibold text-ink-primary">Monitor SLA</p>
+              <p className="text-xs text-ink-tertiary leading-tight">
+                {slaBreached > 0 ? `${slaBreached} incumplido${slaBreached > 1 ? 's' : ''}` : 'Todo en tiempo'}
+              </p>
+            </Link>
+            <Link href="/maintenance"
+              className="flex flex-col gap-1 rounded-xl border border-border-subtle bg-surface-1 px-3 py-3 hover:bg-surface-2 transition-colors">
+              <CalendarCheck2 size={16} className="text-volt-500" />
+              <p className="text-xs font-semibold text-ink-primary">PM Calendar</p>
+              <p className="text-xs text-ink-tertiary leading-tight">Visitas preventivas</p>
+            </Link>
+          </div>
         )}
 
         {/* ── HALLAZGOS ABIERTOS ── */}

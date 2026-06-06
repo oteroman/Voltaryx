@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { OrderCard }    from '@/components/orders/order-card'
-import { CalendarDays, Inbox, Plus } from 'lucide-react'
+import { CalendarDays, Inbox, Plus, Shield } from 'lucide-react'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -63,13 +63,19 @@ export default async function OrdersPage() {
             </p>
           </div>
           {isManager && (
-            <Link
-              href="/orders/new"
-              className="flex h-9 items-center gap-1.5 rounded-lg bg-volt-500 px-3 text-sm font-semibold text-ink-inverse hover:bg-volt-400 active:bg-volt-600 transition-colors"
-            >
-              <Plus size={16} strokeWidth={2.5} />
-              Nueva
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/sla"
+                className="flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold text-ink-secondary hover:bg-surface-2 transition-colors">
+                <Shield size={15} />SLA
+              </Link>
+              <Link
+                href="/orders/new"
+                className="flex h-9 items-center gap-1.5 rounded-lg bg-volt-500 px-3 text-sm font-semibold text-ink-inverse hover:bg-volt-400 active:bg-volt-600 transition-colors"
+              >
+                <Plus size={16} strokeWidth={2.5} />
+                Nueva
+              </Link>
+            </div>
           )}
         </div>
       </header>
