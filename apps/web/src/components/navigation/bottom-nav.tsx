@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   ClipboardList, Cpu, User, TrendingUp,
-  Plus, LayoutDashboard, Package, FileText, Radio,
+  Plus, LayoutDashboard, FileText, Users, Building2,
 } from 'lucide-react'
 import { cn } from '@/components/ui/cn'
 
@@ -24,13 +24,20 @@ interface Props { role: Role }
 export function BottomNav({ role }: Props) {
   const pathname = usePathname()
 
-  const isManager   = MANAGER_ROLES.includes(role)
-  const showFab     = CAN_CREATE_ORDER.includes(role)
+  const isManager    = MANAGER_ROLES.includes(role)
+  const showFab      = CAN_CREATE_ORDER.includes(role)
   const isTechnician = role === 'technician'
+  const isClient     = role === 'client'
 
   let items: (NavItem | null)[]
 
-  if (isTechnician) {
+  if (isClient) {
+    items = [
+      { href: '/portal',  label: 'Portal',  icon: Building2 },
+      { href: '/assets',  label: 'Equipos', icon: Cpu       },
+      { href: '/profile', label: 'Perfil',  icon: User      },
+    ]
+  } else if (isTechnician) {
     items = [
       { href: '/orders',  label: 'Órdenes', icon: ClipboardList },
       { href: '/assets',  label: 'Activos', icon: Cpu           },
@@ -42,7 +49,7 @@ export function BottomNav({ role }: Props) {
       { href: '/dashboard',    label: 'Inicio',      icon: LayoutDashboard },
       { href: '/orders',       label: 'Órdenes',     icon: ClipboardList   },
       null,                                                                // FAB slot
-      { href: '/dispatch',     label: 'Despacho',    icon: Radio           },
+      { href: '/technicians',   label: 'Técnicos',    icon: Users           },
       { href: '/profile',      label: 'Perfil',      icon: User            },
     ]
   } else {

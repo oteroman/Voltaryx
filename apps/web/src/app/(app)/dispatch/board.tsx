@@ -29,6 +29,7 @@ interface Technician {
   id: string
   full_name: string | null
   role: string
+  skills?: string[]
 }
 
 interface Props {
@@ -59,6 +60,14 @@ const TYPE_LABEL: Record<string, string> = {
   emergency:    'Emergencia',
   installation: 'Instalación',
   inspection:   'Inspección',
+}
+
+const TYPE_SKILL_MAP: Record<string, string[]> = {
+  preventive:   ['UPS Liebert', 'UPS APC', 'UPS Eaton', 'UPS VERTIV', 'Banco de baterías'],
+  corrective:   ['UPS Liebert', 'UPS APC', 'UPS Eaton', 'UPS VERTIV', 'Módulos de potencia'],
+  emergency:    ['UPS Liebert', 'UPS APC', 'UPS Eaton', 'UPS VERTIV', 'Electricidad MT', 'Electricidad BT'],
+  installation: ['Instalación', 'Redes y cableado estructurado', 'Puesta a tierra', 'Electricidad BT'],
+  inspection:   ['Sistemas de monitoreo', 'Electricidad MT', 'Electricidad BT'],
 }
 
 function fmtDate(iso: string, today: string, tomorrow: string) {
@@ -403,6 +412,12 @@ function AssignSheet({ order, technicians, currentTechId, onAssign, onClose, loa
           <div className="flex flex-col gap-2 max-h-72 overflow-y-auto">
             {technicians.map(tech => {
               const isCurrent = tech.id === currentTechId
+              const requiredSkills = TYPE_SKILL_MAP[order.type]
+              const isCompatible =
+                requiredSkills !== undefined &&
+                Array.isArray(tech.skills) &&
+                tech.skills.length > 0 &&
+                tech.skills.some(s => requiredSkills.includes(s))
               return (
                 <button key={tech.id}
                   onClick={() => onAssign(tech.id)}
@@ -422,7 +437,12 @@ function AssignSheet({ order, technicians, currentTechId, onAssign, onClose, loa
                     {tech.full_name?.charAt(0).toUpperCase() ?? '?'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-ink-primary">{tech.full_name ?? 'Sin nombre'}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-ink-primary">{tech.full_name ?? 'Sin nombre'}</p>
+                      {isCompatible && (
+                        <span className="rounded-full bg-success/20 px-2 py-0.5 text-xs text-success">✓ Compatible</span>
+                      )}
+                    </div>
                     <p className="text-xs text-ink-tertiary capitalize">{tech.role}</p>
                   </div>
                   {isCurrent && <Check size={16} className="flex-shrink-0 text-volt-500" />}
