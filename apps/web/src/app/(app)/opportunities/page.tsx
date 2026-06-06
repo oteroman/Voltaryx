@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect }     from 'next/navigation'
 import Link             from 'next/link'
-import { TrendingUp, ChevronRight, ArrowRight } from 'lucide-react'
+import { TrendingUp, ChevronRight, ArrowRight, FileText, Plus } from 'lucide-react'
 import { cn } from '@/components/ui/cn'
 
 export const dynamic = 'force-dynamic'
@@ -71,9 +71,15 @@ export default async function OpportunitiesPage() {
               {(opps?.length ?? 0) + (findingCandidates?.length ?? 0)} oportunidades
             </p>
           </div>
-          <div className="text-right">
-            <p className="text-lg font-bold text-volt-500">{formatCurrency(totalPipeline)}</p>
-            <p className="text-xs text-ink-tertiary">valor estimado</p>
+          <div className="flex items-center gap-2">
+            <Link href="/quotes"
+              className="flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold text-ink-secondary hover:bg-surface-2 transition-colors">
+              <FileText size={15} />Cotizaciones
+            </Link>
+            <Link href="/quotes/new"
+              className="flex h-9 items-center gap-1.5 rounded-lg bg-volt-500 px-3 text-sm font-semibold text-ink-inverse hover:bg-volt-400 transition-colors">
+              <Plus size={15} strokeWidth={2.5} />COT
+            </Link>
           </div>
         </div>
 

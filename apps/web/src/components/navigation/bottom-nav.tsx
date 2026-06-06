@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   ClipboardList, Cpu, User, TrendingUp,
-  Plus, LayoutDashboard, Package,
+  Plus, LayoutDashboard, Package, FileText,
 } from 'lucide-react'
 import { cn } from '@/components/ui/cn'
 
@@ -46,11 +46,11 @@ export function BottomNav({ role }: Props) {
       { href: '/profile',      label: 'Perfil',      icon: User            },
     ]
   } else {
-    // commercial — no FAB
+    // commercial — no FAB: Dashboard · Pipeline · Cotizaciones · Perfil
     items = [
       { href: '/dashboard',    label: 'Inicio',      icon: LayoutDashboard },
       { href: '/opportunities',label: 'Pipeline',    icon: TrendingUp      },
-      { href: '/inventory',    label: 'Inventario',  icon: Package         },
+      { href: '/quotes',       label: 'Cotizaciones',icon: FileText        },
       { href: '/profile',      label: 'Perfil',      icon: User            },
     ]
   }
