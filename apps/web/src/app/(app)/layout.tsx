@@ -9,18 +9,21 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!user) redirect('/login')
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const role = (profile?.role ?? 'technician') as string
+
   return (
     <div className="flex h-svh flex-col bg-void">
-      {/* Banner de conectividad — siempre al tope */}
       <ConnectivityIndicator />
-
-      {/* Contenido principal */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto pb-20">
         {children}
       </main>
-
-      {/* Bottom navigation (mobile-first) */}
-      <BottomNav />
+      <BottomNav role={role} />
     </div>
   )
 }
