@@ -60,7 +60,7 @@ export default function NewContractPage() {
 
     const sb = createClient()
     const { error: err } = await sb.from('contracts').insert({
-      contract_number:    '',          // trigger auto-generates CT-YYYYMM-NNNN
+      contract_number:    '',          // trigger auto-generates CON-YYYY-NNNN
       customer_id:        customerId,
       type,
       status:             'draft',
@@ -73,7 +73,7 @@ export default function NewContractPage() {
       sla_resolution_hours: slaResolution ? parseInt(slaResolution) : null,
       visits_per_year:    visitsPerYear ? parseInt(visitsPerYear) : null,
       notes:              notes.trim() || null,
-      account_manager_id: assignedTo || null,
+      assigned_to:        assignedTo || null,
     })
 
     if (err) { setError('No se pudo guardar el contrato. ' + err.message); setLoading(false); return }

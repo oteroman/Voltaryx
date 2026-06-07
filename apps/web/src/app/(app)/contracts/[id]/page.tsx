@@ -49,7 +49,7 @@ export default async function ContractDetailPage({ params }: { params: { id: str
     .select(`
       *,
       customers(id, name, tax_id),
-      profiles:account_manager_id(full_name)
+      profiles:assigned_to(full_name)
     `)
     .eq('id', params.id)
     .single()

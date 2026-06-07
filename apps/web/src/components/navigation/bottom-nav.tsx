@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   ClipboardList, Cpu, User, TrendingUp,
-  Plus, LayoutDashboard, FileText, Users, Building2,
+  Plus, LayoutDashboard, FileText, Users, Building2, FileCheck,
 } from 'lucide-react'
 import { cn } from '@/components/ui/cn'
 
@@ -49,15 +49,15 @@ export function BottomNav({ role }: Props) {
       { href: '/dashboard',    label: 'Inicio',      icon: LayoutDashboard },
       { href: '/orders',       label: 'Órdenes',     icon: ClipboardList   },
       null,                                                                // FAB slot
-      { href: '/technicians',   label: 'Técnicos',    icon: Users           },
+      { href: '/contracts',    label: 'Contratos',   icon: FileCheck       },
       { href: '/profile',      label: 'Perfil',      icon: User            },
     ]
   } else {
-    // commercial — no FAB: Dashboard · Pipeline · Cotizaciones · Perfil
+    // commercial — no FAB: Dashboard · Pipeline · Contratos · Perfil
     items = [
       { href: '/dashboard',    label: 'Inicio',      icon: LayoutDashboard },
       { href: '/opportunities',label: 'Pipeline',    icon: TrendingUp      },
-      { href: '/quotes',       label: 'Cotizaciones',icon: FileText        },
+      { href: '/contracts',    label: 'Contratos',   icon: FileCheck       },
       { href: '/profile',      label: 'Perfil',      icon: User            },
     ]
   }
