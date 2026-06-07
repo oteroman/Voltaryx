@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, AlertTriangle, FileText } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/components/ui/cn'
@@ -16,16 +16,30 @@ const STAGES = [
   { value: 'negotiation', label: 'Negociación',  desc: 'Revisión contrato'  },
 ]
 
+const SEV_CFG: Record<string, { label: string; cls: string; dot: string }> = {
+  critical: { label: 'Crítico',  cls: 'bg-critical/10 text-critical border-critical/30',   dot: 'bg-critical'   },
+  high:     { label: 'Alto',     cls: 'bg-amber-500/10 text-amber-400 border-amber-500/30', dot: 'bg-amber-400'  },
+  medium:   { label: 'Medio',    cls: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30', dot: 'bg-yellow-400' },
+  low:      { label: 'Bajo',     cls: 'bg-success/10 text-success border-success/30',       dot: 'bg-success'    },
+}
+
 function NewOpportunityForm() {
   const router       = useRouter()
   const searchParams = useSearchParams()
 
-  const [customers,   setCustomers]   = useState<Sel[]>([])
   const [technicians, setTechnicians] = useState<Sel[]>([])
+  const [customers,   setCustomers]   = useState<Sel[]>([])
+
+  const findingId    = searchParams.get('findingId')
+  const customerIdParam   = searchParams.get('customerId') ?? ''
+  const customerNameParam = searchParams.get('customerName') ?? ''
+  const orderId      = searchParams.get('orderId') ?? ''
+  const orderNumber  = searchParams.get('orderNumber') ?? ''
+  const severity     = searchParams.get('severity') ?? ''
 
   const [title,          setTitle]          = useState(searchParams.get('title') ?? '')
-  const [description,    setDescription]    = useState('')
-  const [customerId,     setCustomerId]     = useState(searchParams.get('customerId') ?? '')
+  const [description,    setDescription]    = useState(searchParams.get('description') ?? '')
+  const [customerId,     setCustomerId]     = useState(customerIdParam)
   const [stage,          setStage]          = useState('identified')
   const [probability,    setProbability]    = useState('50')
   const [estimatedValue, setEstimatedValue] = useState(searchParams.get('value') ?? '')
@@ -34,15 +48,17 @@ function NewOpportunityForm() {
   const [loading,        setLoading]        = useState(false)
   const [error,          setError]          = useState('')
 
-  const findingId = searchParams.get('findingId')
+  const fromFinding = Boolean(findingId)
 
   useEffect(() => {
     const sb = createClient()
-    sb.from('customers').select('id, name').eq('is_active', true).order('name')
-      .then(({ data }) => setCustomers(data ?? []))
     sb.from('profiles').select('id, full_name').in('role', ['commercial', 'supervisor', 'tenant_admin']).order('full_name')
       .then(({ data }) => setTechnicians((data ?? []).map(p => ({ id: p.id, name: p.full_name ?? '' }))))
-  }, [])
+    if (!fromFinding) {
+      sb.from('customers').select('id, name').eq('is_active', true).order('name')
+        .then(({ data }) => setCustomers(data ?? []))
+    }
+  }, [fromFinding])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -66,18 +82,60 @@ function NewOpportunityForm() {
     router.push('/opportunities')
   }
 
+  const sevCfg = SEV_CFG[severity] ?? null
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5 px-4 py-5">
+
+      {/* Context card when coming from a finding */}
+      {fromFinding && (
+        <div className="rounded-xl border border-border bg-surface-2 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <FileText size={14} className="text-ink-tertiary" />
+            <span className="text-xs font-bold uppercase tracking-widest text-ink-tertiary">Origen del hallazgo</span>
+          </div>
+          <div className="flex flex-col gap-2">
+            {customerNameParam && (
+              <div className="flex items-center gap-2">
+                <span className="w-20 flex-shrink-0 text-xs text-ink-tertiary">Cliente</span>
+                <span className="text-sm font-semibold text-ink-primary">{customerNameParam}</span>
+              </div>
+            )}
+            {orderNumber && (
+              <div className="flex items-center gap-2">
+                <span className="w-20 flex-shrink-0 text-xs text-ink-tertiary">Orden</span>
+                <span className="font-mono text-sm text-volt-400">{orderNumber}</span>
+              </div>
+            )}
+            {sevCfg && (
+              <div className="flex items-center gap-2">
+                <span className="w-20 flex-shrink-0 text-xs text-ink-tertiary">Severidad</span>
+                <span className={cn('flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold', sevCfg.cls)}>
+                  <span className={cn('h-1.5 w-1.5 rounded-full', sevCfg.dot)} />
+                  {sevCfg.label}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <Field label="Título *">
         <input type="text" value={title} onChange={e => setTitle(e.target.value)} required className={inputCls}
           placeholder="Reemplazo banco de baterías..." />
       </Field>
 
       <Field label="Cliente *">
-        <select value={customerId} onChange={e => setCustomerId(e.target.value)} required className={selCls}>
-          <option value="">Seleccionar cliente...</option>
-          {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
+        {fromFinding ? (
+          <div className={cn(inputCls, 'flex items-center bg-surface-3 text-ink-secondary cursor-not-allowed')}>
+            {customerNameParam || 'Cliente del hallazgo'}
+          </div>
+        ) : (
+          <select value={customerId} onChange={e => setCustomerId(e.target.value)} required className={selCls}>
+            <option value="">Seleccionar cliente...</option>
+            {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+        )}
       </Field>
 
       <Field label="Etapa">
@@ -116,10 +174,10 @@ function NewOpportunityForm() {
         </select>
       </Field>
 
-      <Field label="Descripción / Notas">
+      <Field label={fromFinding ? 'Descripción / Recomendación' : 'Descripción / Notas'}>
         <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3}
           className={cn(inputCls, 'h-auto resize-none py-3')}
-          placeholder="Contexto, necesidades específicas del cliente..." />
+          placeholder={fromFinding ? 'Detalle de la recomendación al cliente...' : 'Contexto, necesidades específicas del cliente...'} />
       </Field>
 
       {error && <p className="rounded bg-critical/10 px-3 py-2 text-sm text-critical">{error}</p>}
