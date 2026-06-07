@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect }     from 'next/navigation'
 import { notFound }     from 'next/navigation'
 import Link             from 'next/link'
-import { ArrowLeft, Plus, Phone, Mail, MapPin, FileText } from 'lucide-react'
+import { ArrowLeft, Plus, Phone, Mail, MapPin, FileText, Pencil } from 'lucide-react'
 import { cn }           from '@/components/ui/cn'
 
 export const dynamic = 'force-dynamic'
@@ -66,8 +66,11 @@ export default async function SupplierDetailPage({ params }: { params: { id: str
             <span className="text-xs text-ink-tertiary">Inactivo</span>
           )}
         </div>
-        <Link
-          href={`/purchases/new?supplierId=${supplier.id}`}
+        <Link href={`/suppliers/${supplier.id}/edit`}
+          className="flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold text-ink-secondary hover:bg-surface-2 transition-colors">
+          <Pencil size={14} />Editar
+        </Link>
+        <Link href={`/purchases/new?supplierId=${supplier.id}`}
           className="flex h-9 items-center gap-1.5 rounded-lg bg-volt-500 px-3 text-sm font-semibold text-ink-inverse hover:bg-volt-400 transition-colors">
           <Plus size={15} />OC
         </Link>

@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Plus } from 'lucide-react'
+import { Plus, ShoppingCart } from 'lucide-react'
 import { cn } from '@/components/ui/cn'
 import { InventoryList } from './inventory-list'
 
@@ -48,6 +48,12 @@ export default async function InventoryPage() {
               className="flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold text-ink-secondary hover:bg-surface-2 transition-colors">
               Catálogo
             </Link>
+            {['tenant_admin', 'supervisor'].includes(role) && (
+              <Link href="/purchases"
+                className="flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold text-ink-secondary hover:bg-surface-2 transition-colors">
+                <ShoppingCart size={15} />Compras
+              </Link>
+            )}
             {canEdit && (
               <Link href="/inventory/new"
                 className="flex h-9 items-center gap-1.5 rounded-lg bg-volt-500 px-3 text-sm font-semibold text-ink-inverse hover:bg-volt-400 transition-colors">

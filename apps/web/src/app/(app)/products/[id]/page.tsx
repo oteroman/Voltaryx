@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
   ArrowLeft, Package, Zap, Tag, Repeat,
-  CheckCircle2, MapPin, Plus, FileText,
+  CheckCircle2, MapPin, Plus, FileText, AlertTriangle, ShoppingCart,
 } from 'lucide-react'
 import { cn } from '@/components/ui/cn'
 
@@ -99,11 +99,34 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
 
       <div className="flex flex-col gap-5 px-4 py-5">
 
+        {/* Alerta stock mínimo */}
+        {(product.stock_min ?? 0) > 0 && inStock < (product.stock_min ?? 0) && (
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <AlertTriangle size={15} className="flex-shrink-0 text-amber-400" />
+              <div>
+                <p className="text-sm font-semibold text-amber-400">Stock bajo mínimo</p>
+                <p className="text-xs text-amber-300/70">
+                  {inStock} en stock · mínimo {product.stock_min}
+                </p>
+              </div>
+            </div>
+            <Link href={`/purchases/new`}
+              className="flex-shrink-0 flex items-center gap-1 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-400 transition-colors">
+              <ShoppingCart size={12} />OC
+            </Link>
+          </div>
+        )}
+
         {/* Disponibilidad rápida */}
-        <div className="grid grid-cols-3 gap-2">
-          <StockPill label="En stock" count={inStock} cls="text-success" />
+        <div className={cn('grid gap-2', (product.stock_min ?? 0) > 0 ? 'grid-cols-4' : 'grid-cols-3')}>
+          <StockPill label="En stock" count={inStock}
+            cls={inStock < (product.stock_min ?? 0) && (product.stock_min ?? 0) > 0 ? 'text-amber-400' : 'text-success'} />
           <StockPill label="Operación" count={deployed} cls="text-blue-400" />
           <StockPill label="Taller" count={workshop} cls={workshop > 0 ? 'text-amber-400' : 'text-ink-tertiary'} />
+          {(product.stock_min ?? 0) > 0 && (
+            <StockPill label="Mínimo" count={product.stock_min ?? 0} cls="text-ink-tertiary" />
+          )}
         </div>
 
         {/* Especificaciones */}

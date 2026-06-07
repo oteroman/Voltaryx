@@ -34,6 +34,7 @@ export default function NewProductPage() {
   const [finalMarginPct,      setFinalMarginPct]      = useState('25')
   const [isRentable,          setIsRentable]          = useState(false)
   const [rentalPrice,         setRentalPrice]         = useState('')
+  const [stockMin,            setStockMin]            = useState('0')
   const [stockAccount,        setStockAccount]        = useState('')
   const [datasheetUrl,        setDatasheetUrl]        = useState('')
   const [loading,             setLoading]             = useState(false)
@@ -115,6 +116,7 @@ export default function NewProductPage() {
       final_price:            finalPrice || null,
       is_rentable:            isRentable,
       rental_price_monthly:   isRentable && rentalPrice ? parseFloat(rentalPrice) : null,
+      stock_min:              parseInt(stockMin, 10) || 0,
       stock_account:          stockAccount.trim() || null,
       datasheet_url:          datasheetUrl || null,
     })
@@ -303,10 +305,16 @@ export default function NewProductPage() {
           )}
         </div>
 
-        <Field label="Cuenta almacén">
-          <input type="text" value={stockAccount} onChange={e => setStockAccount(e.target.value)}
-            placeholder="CUENTA DE ALMACEN" className={inputCls} />
-        </Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Stock mínimo (alerta)">
+            <input type="number" value={stockMin} onChange={e => setStockMin(e.target.value)}
+              min="0" placeholder="0" className={inputCls} />
+          </Field>
+          <Field label="Cuenta almacén">
+            <input type="text" value={stockAccount} onChange={e => setStockAccount(e.target.value)}
+              placeholder="CUENTA DE ALMACEN" className={inputCls} />
+          </Field>
+        </div>
 
         {error && <p className="rounded bg-critical/10 px-3 py-2 text-sm text-critical">{error}</p>}
 
