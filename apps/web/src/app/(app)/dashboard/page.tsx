@@ -4,7 +4,7 @@ import Link             from 'next/link'
 import {
   ClipboardList, AlertCircle, AlertTriangle, CheckCircle2,
   TrendingUp, Zap, Users, Building2, ChevronRight,
-  Clock, DollarSign, FileWarning, Plus, CalendarCheck2, Shield, Radio,
+  Clock, DollarSign, FileWarning, Plus, CalendarCheck2, Shield, Radio, BarChart3,
 } from 'lucide-react'
 import { cn } from '@/components/ui/cn'
 
@@ -223,18 +223,18 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        {/* ── SHORTCUTS: Dispatch · SLA · PM ── */}
+        {/* ── SHORTCUTS: Dispatch · SLA · PM · Analytics ── */}
         {['tenant_admin', 'supervisor'].includes(role) && (
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-4 gap-2">
             <Link href="/dispatch"
-              className="flex flex-col gap-1 rounded-xl border border-border-subtle bg-surface-1 px-3 py-3 hover:bg-surface-2 transition-colors">
+              className="flex flex-col gap-1 rounded-xl border border-border-subtle bg-surface-1 px-2 py-3 hover:bg-surface-2 transition-colors">
               <Radio size={16} className="text-blue-400" />
               <p className="text-xs font-semibold text-ink-primary">Despacho</p>
-              <p className="text-xs text-ink-tertiary leading-tight">Asignar técnicos</p>
+              <p className="text-xs text-ink-tertiary leading-tight">Asignar</p>
             </Link>
             <Link href="/sla"
               className={cn(
-                'flex flex-col gap-1 rounded-xl border px-3 py-3 transition-colors',
+                'flex flex-col gap-1 rounded-xl border px-2 py-3 transition-colors',
                 slaBreached > 0
                   ? 'border-critical/40 bg-critical/5 hover:bg-critical/10'
                   : 'border-border-subtle bg-surface-1 hover:bg-surface-2',
@@ -242,21 +242,27 @@ export default async function DashboardPage() {
               <div className="flex items-center justify-between">
                 <Shield size={16} className={slaBreached > 0 ? 'text-critical' : 'text-ink-tertiary'} />
                 {slaBreached > 0 && (
-                  <span className="rounded-full bg-critical px-1.5 py-0.5 text-xs font-bold text-white leading-none">
+                  <span className="rounded-full bg-critical px-1 py-0.5 text-[10px] font-bold text-white leading-none">
                     {slaBreached}
                   </span>
                 )}
               </div>
               <p className="text-xs font-semibold text-ink-primary">SLA</p>
               <p className="text-xs text-ink-tertiary leading-tight">
-                {slaBreached > 0 ? `${slaBreached} incumplido${slaBreached > 1 ? 's' : ''}` : 'Al día'}
+                {slaBreached > 0 ? `${slaBreached} incumpl.` : 'Al día'}
               </p>
             </Link>
             <Link href="/maintenance"
-              className="flex flex-col gap-1 rounded-xl border border-border-subtle bg-surface-1 px-3 py-3 hover:bg-surface-2 transition-colors">
+              className="flex flex-col gap-1 rounded-xl border border-border-subtle bg-surface-1 px-2 py-3 hover:bg-surface-2 transition-colors">
               <CalendarCheck2 size={16} className="text-volt-500" />
               <p className="text-xs font-semibold text-ink-primary">PM</p>
               <p className="text-xs text-ink-tertiary leading-tight">Preventivo</p>
+            </Link>
+            <Link href="/analytics"
+              className="flex flex-col gap-1 rounded-xl border border-border-subtle bg-surface-1 px-2 py-3 hover:bg-surface-2 transition-colors">
+              <BarChart3 size={16} className="text-purple-400" />
+              <p className="text-xs font-semibold text-ink-primary">Analítica</p>
+              <p className="text-xs text-ink-tertiary leading-tight">KPIs</p>
             </Link>
           </div>
         )}

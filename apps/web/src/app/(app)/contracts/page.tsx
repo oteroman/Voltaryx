@@ -98,7 +98,7 @@ export default async function ContractsPage() {
         </div>
       )}
 
-      <ContractsList contracts={contracts} canEdit={canEdit} />
+      <ContractsList contracts={contracts ?? []} canEdit={canEdit} />
     </div>
   )
 }
