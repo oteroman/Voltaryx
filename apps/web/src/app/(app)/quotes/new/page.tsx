@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { Suspense, useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Plus, Trash2, Package, Wrench, Repeat, HardHat, ChevronDown, ChevronUp } from 'lucide-react'
 import Link from 'next/link'
@@ -77,7 +77,7 @@ function lineSubtotal(l: LineItem) {
 
 const IGV = 0.18
 
-export default function NewQuotePage() {
+function NewQuoteForm() {
   const router = useRouter()
   const params = useSearchParams()
 
@@ -189,16 +189,7 @@ export default function NewQuotePage() {
   }
 
   return (
-    <div className="flex flex-col">
-      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-border-subtle bg-void/90 px-4 py-4 backdrop-blur-sm">
-        <Link href="/quotes"
-          className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-surface-2 text-ink-secondary">
-          <ArrowLeft size={20} />
-        </Link>
-        <h1 className="font-display text-lg font-bold text-ink-primary">Nueva cotización</h1>
-      </header>
-
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5 px-4 py-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5 px-4 py-5">
 
         {/* Cliente */}
         <Field label="Cliente *">
@@ -304,7 +295,23 @@ export default function NewQuotePage() {
             'transition-colors hover:bg-volt-400 disabled:opacity-40 disabled:cursor-not-allowed')}>
           {loading ? 'Creando...' : 'Crear cotización'}
         </button>
-      </form>
+    </form>
+  )
+}
+
+export default function NewQuotePage() {
+  return (
+    <div className="flex flex-col">
+      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-border-subtle bg-void/90 px-4 py-4 backdrop-blur-sm">
+        <Link href="/quotes"
+          className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-surface-2 text-ink-secondary">
+          <ArrowLeft size={20} />
+        </Link>
+        <h1 className="font-display text-lg font-bold text-ink-primary">Nueva cotización</h1>
+      </header>
+      <Suspense fallback={<div className="px-4 py-8 text-sm text-ink-tertiary">Cargando...</div>}>
+        <NewQuoteForm />
+      </Suspense>
     </div>
   )
 }

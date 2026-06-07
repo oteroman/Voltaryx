@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -15,7 +15,7 @@ const STATUSES = [
   { value: 'critical',    label: 'Crítico'    },
 ]
 
-export default function NewAssetPage() {
+function NewAssetForm() {
   const router       = useRouter()
   const searchParams = useSearchParams()
 
@@ -81,15 +81,7 @@ export default function NewAssetPage() {
   }
 
   return (
-    <div className="flex flex-col">
-      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-border-subtle bg-void/90 px-4 py-4 backdrop-blur-sm">
-        <Link href="/assets" className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-surface-2 text-ink-secondary">
-          <ArrowLeft size={20} />
-        </Link>
-        <h1 className="font-display text-lg font-bold text-ink-primary">Nuevo Activo</h1>
-      </header>
-
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5 px-4 py-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5 px-4 py-5">
 
         <Field label="Cliente *">
           <select value={customerId} onChange={e => setCustomerId(e.target.value)} required className={selCls}>
@@ -172,7 +164,22 @@ export default function NewAssetPage() {
           )}>
           {loading ? 'Guardando...' : 'Crear activo'}
         </button>
-      </form>
+    </form>
+  )
+}
+
+export default function NewAssetPage() {
+  return (
+    <div className="flex flex-col">
+      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-border-subtle bg-void/90 px-4 py-4 backdrop-blur-sm">
+        <Link href="/assets" className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-surface-2 text-ink-secondary">
+          <ArrowLeft size={20} />
+        </Link>
+        <h1 className="font-display text-lg font-bold text-ink-primary">Nuevo Activo</h1>
+      </header>
+      <Suspense fallback={<div className="px-4 py-8 text-sm text-ink-tertiary">Cargando...</div>}>
+        <NewAssetForm />
+      </Suspense>
     </div>
   )
 }
