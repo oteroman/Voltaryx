@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "Voltaryx",
+    "slug": "voltaryx",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "voltaryx",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0a0a0f"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.illarilabs.voltaryx",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Se requiere acceso a la cámara para capturar fotos de los equipos y firmas digitales.",
+        "NSLocationWhenInUseUsageDescription": "Se requiere ubicación para registrar el lugar de inicio de la visita técnica.",
+        "NSPhotoLibraryUsageDescription": "Se requiere acceso a la galería para subir fotos de los equipos."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0a0a0f"
+      },
+      "package": "com.illarilabs.voltaryx",
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        { "cameraPermission": "Se necesita la cámara para capturar fotos y leer códigos QR." }
+      ],
+      [
+        "expo-location",
+        { "locationWhenInUsePermission": "Se necesita la ubicación al iniciar una visita técnica." }
+      ],
+      [
+        "expo-image-picker",
+        { "photosPermission": "Se necesita acceso a fotos para subir imágenes de los equipos." }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
