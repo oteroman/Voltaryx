@@ -23,7 +23,7 @@ function NewOpportunityForm() {
   const [customers,   setCustomers]   = useState<Sel[]>([])
   const [technicians, setTechnicians] = useState<Sel[]>([])
 
-  const [title,          setTitle]          = useState(decodeURIComponent(searchParams.get('title') ?? ''))
+  const [title,          setTitle]          = useState(searchParams.get('title') ?? '')
   const [description,    setDescription]    = useState('')
   const [customerId,     setCustomerId]     = useState(searchParams.get('customerId') ?? '')
   const [stage,          setStage]          = useState('identified')
