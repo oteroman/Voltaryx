@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
   ArrowLeft, Package, Zap, Tag, Repeat,
-  CheckCircle2, Wrench, Truck, MapPin, Plus,
+  CheckCircle2, MapPin, Plus, FileText,
 } from 'lucide-react'
 import { cn } from '@/components/ui/cn'
 
@@ -217,6 +217,18 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
             </div>
           )}
         </section>
+
+        {/* Datasheet técnico */}
+        {product.datasheet_url && (
+          <a
+            href={product.datasheet_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-touch items-center justify-center gap-2 rounded-xl border border-border-subtle bg-surface-1 text-sm font-medium text-ink-secondary hover:border-border hover:bg-surface-2 transition-colors">
+            <FileText size={16} className="text-ink-tertiary" />
+            Ver datasheet técnico
+          </a>
+        )}
 
         {/* Acciones */}
         <div className="flex flex-col gap-2">

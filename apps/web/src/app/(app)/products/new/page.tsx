@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Upload, Sparkles, FileText, X, Loader2, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/components/ui/cn'
@@ -19,7 +19,8 @@ const CATEGORIES = [
 ]
 
 export default function NewProductPage() {
-  const router = useRouter()
+  const router  = useRouter()
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const [category,            setCategory]            = useState('ups')
   const [description,         setDescription]         = useState('')
@@ -34,31 +35,80 @@ export default function NewProductPage() {
   const [isRentable,          setIsRentable]          = useState(false)
   const [rentalPrice,         setRentalPrice]         = useState('')
   const [stockAccount,        setStockAccount]        = useState('')
+  const [datasheetUrl,        setDatasheetUrl]        = useState('')
   const [loading,             setLoading]             = useState(false)
   const [error,               setError]               = useState('')
 
-  // Cálculo de precios
-  const cost = parseFloat(costPrice) || 0
-  const distMargin = parseFloat(distributorMarginPct) || 0
-  const finalMargin = parseFloat(finalMarginPct) || 0
-  const distPrice = cost > 0 ? cost / (1 - distMargin / 100) : 0
-  const finalPrice = cost > 0 ? cost / (1 - finalMargin / 100) : 0
+  // AI datasheet state
+  const [aiFile,     setAiFile]     = useState<File | null>(null)
+  const [aiLoading,  setAiLoading]  = useState(false)
+  const [aiError,    setAiError]    = useState('')
+  const [aiDone,     setAiDone]     = useState(false)
+
+  const cost         = parseFloat(costPrice) || 0
+  const distMargin   = parseFloat(distributorMarginPct) || 0
+  const finalMargin  = parseFloat(finalMarginPct) || 0
+  const distPrice    = cost > 0 ? cost / (1 - distMargin / 100) : 0
+  const finalPrice   = cost > 0 ? cost / (1 - finalMargin / 100) : 0
+
+  async function handleDatasheet(file: File) {
+    setAiFile(file)
+    setAiDone(false)
+    setAiError('')
+    setAiLoading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res  = await fetch('/api/products/parse-datasheet', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Error al procesar el archivo')
+
+      const { datasheet_url, extracted } = data
+      if (datasheet_url) setDatasheetUrl(datasheet_url)
+
+      if (extracted) {
+        if (extracted.category && CATEGORIES.some(c => c.value === extracted.category)) setCategory(extracted.category)
+        if (extracted.description) setDescription(extracted.description)
+        if (extracted.brand)       setBrand(extracted.brand)
+        if (extracted.model)       setModel(extracted.model)
+        if (extracted.power_kva)   setPowerKva(String(extracted.power_kva))
+        if (extracted.phase && ['monofasico', 'trifasico'].includes(extracted.phase)) setPhase(extracted.phase)
+      }
+      setAiDone(true)
+    } catch (e) {
+      setAiError(e instanceof Error ? e.message : 'Error desconocido')
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) handleDatasheet(file)
+  }
+
+  function clearFile() {
+    setAiFile(null)
+    setAiDone(false)
+    setAiError('')
+    setDatasheetUrl('')
+    if (fileRef.current) fileRef.current.value = ''
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!description) return
     setLoading(true); setError('')
 
-    const sb = createClient()
-    const { error: err } = await sb.from('products').insert({
+    const { error: err } = await createClient().from('products').insert({
       category,
-      description: description.trim(),
-      brand:       brand.trim() || null,
-      model:       model.trim() || null,
-      code:        code.trim() || null,
-      power_kva:   powerKva ? parseFloat(powerKva) : null,
-      phase:       ['ups','module'].includes(category) ? phase : null,
-      cost_price:  cost || null,
+      description:            description.trim(),
+      brand:                  brand.trim() || null,
+      model:                  model.trim() || null,
+      code:                   code.trim() || null,
+      power_kva:              powerKva ? parseFloat(powerKva) : null,
+      phase:                  ['ups', 'module'].includes(category) ? phase : null,
+      cost_price:             cost || null,
       distributor_margin_pct: distMargin || null,
       distributor_price:      distPrice || null,
       final_margin_pct:       finalMargin || null,
@@ -66,6 +116,7 @@ export default function NewProductPage() {
       is_rentable:            isRentable,
       rental_price_monthly:   isRentable && rentalPrice ? parseFloat(rentalPrice) : null,
       stock_account:          stockAccount.trim() || null,
+      datasheet_url:          datasheetUrl || null,
     })
 
     if (err) { setError('No se pudo guardar: ' + err.message); setLoading(false); return }
@@ -83,6 +134,63 @@ export default function NewProductPage() {
       </header>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5 px-4 py-5">
+
+        {/* AI Datasheet */}
+        <div className={cn(
+          'rounded-xl border p-4 transition-colors',
+          aiDone ? 'border-volt-500/40 bg-volt-500/5' : 'border-border-subtle bg-surface-1',
+        )}>
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles size={16} className={aiDone ? 'text-volt-400' : 'text-ink-tertiary'} />
+            <p className="text-sm font-semibold text-ink-secondary">Completar con IA</p>
+            <span className="text-xs text-ink-tertiary">— sube el datasheet técnico</span>
+          </div>
+
+          {!aiFile ? (
+            <button type="button"
+              onClick={() => fileRef.current?.click()}
+              className={cn(
+                'flex w-full flex-col items-center gap-2 rounded-lg border-2 border-dashed py-6 text-center transition-colors',
+                'border-border hover:border-volt-500/50 hover:bg-volt-500/5',
+              )}>
+              <Upload size={24} className="text-ink-tertiary" />
+              <div>
+                <p className="text-sm font-medium text-ink-secondary">Subir PDF o imagen</p>
+                <p className="text-xs text-ink-tertiary">Max 10 MB · PDF, JPG, PNG</p>
+              </div>
+            </button>
+          ) : (
+            <div className="flex items-center gap-3">
+              <FileText size={20} className={aiDone ? 'text-volt-400' : 'text-ink-tertiary'} />
+              <div className="flex-1 min-w-0">
+                <p className="truncate text-sm font-medium text-ink-primary">{aiFile.name}</p>
+                {aiLoading && (
+                  <p className="flex items-center gap-1 text-xs text-ink-tertiary">
+                    <Loader2 size={11} className="animate-spin" />Analizando con IA...
+                  </p>
+                )}
+                {aiDone && (
+                  <p className="flex items-center gap-1 text-xs text-volt-400">
+                    <CheckCircle size={11} />Formulario pre-completado
+                  </p>
+                )}
+                {aiError && <p className="text-xs text-critical">{aiError}</p>}
+              </div>
+              <button type="button" onClick={clearFile}
+                className="flex-shrink-0 text-ink-tertiary hover:text-ink-primary transition-colors">
+                <X size={16} />
+              </button>
+            </div>
+          )}
+
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png,.webp"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+        </div>
 
         <Field label="Categoría">
           <div className="grid grid-cols-2 gap-2">
@@ -202,7 +310,7 @@ export default function NewProductPage() {
 
         {error && <p className="rounded bg-critical/10 px-3 py-2 text-sm text-critical">{error}</p>}
 
-        <button type="submit" disabled={loading || !description}
+        <button type="submit" disabled={loading || !description || aiLoading}
           className={cn('h-touch w-full rounded-lg bg-volt-500 font-semibold text-ink-inverse',
             'transition-colors hover:bg-volt-400 disabled:opacity-40 disabled:cursor-not-allowed')}>
           {loading ? 'Guardando...' : 'Crear producto'}

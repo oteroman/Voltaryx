@@ -1,24 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import Link             from 'next/link'
-import { Cpu, Plus, AlertTriangle, CheckCircle, AlertCircle, XCircle, ChevronRight } from 'lucide-react'
-import { cn } from '@/components/ui/cn'
+import { Plus, AlertTriangle, AlertCircle } from 'lucide-react'
+import { AssetsList } from './assets-list'
 
 export const dynamic = 'force-dynamic'
-
-const STATUS_CFG = {
-  operational: { label: 'Operativo',  Icon: CheckCircle,   cls: 'text-success'      },
-  degraded:    { label: 'Degradado',  Icon: AlertTriangle, cls: 'text-amber-400'    },
-  critical:    { label: 'Crítico',    Icon: AlertCircle,   cls: 'text-critical'     },
-  retired:     { label: 'Retirado',   Icon: XCircle,       cls: 'text-ink-tertiary' },
-} as const
-
-const CATEGORY_LABEL: Record<string, string> = {
-  ups:          'UPS',
-  stabilizer:   'Estabilizador',
-  battery_bank: 'Banco Baterías',
-  precision_ac: 'A/C Precisión',
-  other:        'Otro',
-}
 
 export default async function AssetsPage() {
   const supabase = createClient()
@@ -40,8 +25,8 @@ export default async function AssetsPage() {
     .order('status')
     .order('name')
 
-  const criticalCount = assets?.filter(a => a.status === 'critical').length  ?? 0
-  const degradedCount = assets?.filter(a => a.status === 'degraded').length  ?? 0
+  const criticalCount = assets?.filter(a => a.status === 'critical').length ?? 0
+  const degradedCount = assets?.filter(a => a.status === 'degraded').length ?? 0
 
   return (
     <div className="flex flex-col">
@@ -75,47 +60,7 @@ export default async function AssetsPage() {
         )}
       </header>
 
-      <div className="flex flex-col gap-2 px-4 py-4">
-        {(assets ?? []).length === 0 ? (
-          <div className="flex flex-col items-center gap-4 rounded-xl border border-border-subtle bg-surface-1 px-4 py-12 text-center">
-            <Cpu size={32} className="text-ink-tertiary" />
-            <p className="text-sm text-ink-tertiary">No hay activos registrados</p>
-          </div>
-        ) : (
-          (assets ?? []).map((a) => {
-            const st   = STATUS_CFG[a.status as keyof typeof STATUS_CFG] ?? STATUS_CFG.operational
-            const type = a.asset_types as unknown as { name: string; category: string } | null
-            const site = a.sites as unknown as { name: string; customers: { name: string } | null } | null
-            return (
-              <Link key={a.id} href={`/assets/${a.id}`}
-                className="flex items-center gap-3 rounded-xl border border-border-subtle bg-surface-1 px-4 py-3 hover:border-border transition-colors">
-                <div className={cn('flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-surface-3')}>
-                  <st.Icon size={18} className={st.cls} />
-                </div>
-                <div className="flex flex-1 flex-col gap-0.5 min-w-0">
-                  <span className="text-sm font-semibold text-ink-primary truncate">{a.name}</span>
-                  <div className="flex items-center gap-1.5 text-xs text-ink-tertiary">
-                    {type && <span>{CATEGORY_LABEL[type.category] ?? type.category}</span>}
-                    {a.brand && <><span>·</span><span>{a.brand}</span></>}
-                    {a.capacity_kva && <><span>·</span><span>{a.capacity_kva} kVA</span></>}
-                  </div>
-                  {site && (
-                    <span className="text-xs text-ink-tertiary truncate">
-                      {site.customers?.name} — {site.name}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-shrink-0 items-center gap-2">
-                  <span className={cn('flex items-center gap-1 text-xs font-medium', st.cls)}>
-                    <st.Icon size={12} />{st.label}
-                  </span>
-                  <ChevronRight size={15} className="text-ink-tertiary" />
-                </div>
-              </Link>
-            )
-          })
-        )}
-      </div>
+      <AssetsList assets={assets ?? []} canEdit={canEdit} />
     </div>
   )
 }

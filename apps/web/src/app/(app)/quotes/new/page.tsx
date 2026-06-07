@@ -6,10 +6,9 @@ import { ArrowLeft, Plus, Trash2, Package, Wrench, Repeat, HardHat, ChevronDown,
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/components/ui/cn'
+import { Combobox } from '@/components/ui/combobox'
 
-type Product  = { id: string; description: string; brand: string | null; model: string | null; category: string; power_kva: number | null; final_price: number | null; rental_price_monthly: number | null; is_rentable: boolean }
-type Customer = { id: string; name: string }
-type Profile  = { id: string; full_name: string | null }
+type Product = { id: string; description: string; brand: string | null; model: string | null; category: string; power_kva: number | null; final_price: number | null; rental_price_monthly: number | null; is_rentable: boolean }
 
 type LineType = 'product' | 'service' | 'rental' | 'installation'
 
@@ -83,8 +82,6 @@ export default function NewQuotePage() {
   const params = useSearchParams()
 
   const [products,   setProducts]   = useState<Product[]>([])
-  const [customers,  setCustomers]  = useState<Customer[]>([])
-  const [profiles,   setProfiles]   = useState<Profile[]>([])
 
   const [customerId, setCustomerId] = useState(params.get('customerId') ?? '')
   const [assignedTo, setAssignedTo] = useState('')
@@ -99,14 +96,24 @@ export default function NewQuotePage() {
   const [showTypeMenu, setShowTypeMenu] = useState<string | null>(null)
 
   useEffect(() => {
-    const sb = createClient()
-    sb.from('products').select('id, description, brand, model, category, power_kva, final_price, rental_price_monthly, is_rentable')
+    createClient().from('products')
+      .select('id, description, brand, model, category, power_kva, final_price, rental_price_monthly, is_rentable')
       .eq('is_active', true).order('category').order('description')
       .then(({ data }) => setProducts(data ?? []))
-    sb.from('customers').select('id, name').eq('is_active', true).order('name')
-      .then(({ data }) => setCustomers(data ?? []))
-    sb.from('profiles').select('id, full_name').order('full_name')
-      .then(({ data }) => setProfiles(data ?? []))
+  }, [])
+
+  const searchCustomers = useCallback(async (q: string) => {
+    const { data } = await createClient().from('customers')
+      .select('id, name, tax_id').eq('is_active', true)
+      .ilike('name', `%${q}%`).order('name').limit(10)
+    return (data ?? []).map(c => ({ value: c.id, label: c.name, sublabel: c.tax_id ?? undefined }))
+  }, [])
+
+  const searchProfiles = useCallback(async (q: string) => {
+    const { data } = await createClient().from('profiles')
+      .select('id, full_name, role')
+      .ilike('full_name', `%${q}%`).order('full_name').limit(10)
+    return (data ?? []).map(p => ({ value: p.id, label: p.full_name ?? p.id.slice(0, 8), sublabel: p.role ?? undefined }))
   }, [])
 
   const updateLine = useCallback((id: string, patch: Partial<LineItem>) => {
@@ -195,10 +202,12 @@ export default function NewQuotePage() {
 
         {/* Cliente */}
         <Field label="Cliente *">
-          <select value={customerId} onChange={e => setCustomerId(e.target.value)} required className={selCls}>
-            <option value="">Seleccionar cliente...</option>
-            {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
+          <Combobox
+            value={customerId}
+            onChange={setCustomerId}
+            onSearch={searchCustomers}
+            placeholder="Buscar cliente por nombre o RUC..."
+          />
         </Field>
 
         <div className="grid grid-cols-2 gap-3">
@@ -206,10 +215,12 @@ export default function NewQuotePage() {
             <input type="date" value={validUntil} onChange={e => setValidUntil(e.target.value)} className={inputCls} />
           </Field>
           <Field label="Responsable">
-            <select value={assignedTo} onChange={e => setAssignedTo(e.target.value)} className={selCls}>
-              <option value="">Sin asignar</option>
-              {profiles.map(p => <option key={p.id} value={p.id}>{p.full_name ?? p.id.slice(0, 8)}</option>)}
-            </select>
+            <Combobox
+              value={assignedTo}
+              onChange={setAssignedTo}
+              onSearch={searchProfiles}
+              placeholder="Sin asignar (opcional)"
+            />
           </Field>
         </div>
 
