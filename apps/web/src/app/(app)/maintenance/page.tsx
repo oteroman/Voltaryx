@@ -50,7 +50,7 @@ export default async function MaintenancePage() {
   const { data: profile } = await supabase
     .from('profiles').select('role').eq('id', user!.id).single()
   const role = (profile?.role ?? 'technician') as string
-  if (!['tenant_admin', 'supervisor'].includes(role)) redirect('/orders')
+  if (!['tenant_admin', 'supervisor', 'commercial'].includes(role)) redirect('/orders')
 
   const todayStr = today()
 
@@ -347,7 +347,7 @@ function PMCard({ contract: c }: { contract: PMContract }) {
       {c.remainingVisits > 0 && (
         <div className="mt-3 flex gap-2">
           <Link
-            href={`/orders/new?type=preventive&contractId=${c.id}&customerId=${c.customer_id}&title=${encodeURIComponent('Mantenimiento Preventivo - ' + c.customer_name)}`}
+            href={`/orders/new?type=preventive&contractId=${c.id}&customerId=${c.customer_id}&customerLabel=${encodeURIComponent(c.customer_name)}`}
             className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-volt-500/10 py-2 text-xs font-semibold text-volt-400 hover:bg-volt-500/20 transition-colors">
             <Plus size={13} />Programar PM
           </Link>

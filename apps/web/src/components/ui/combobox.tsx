@@ -17,11 +17,12 @@ interface ComboboxProps {
   placeholder?: string
   disabled?: boolean
   className?: string
+  initialLabel?: string
 }
 
-export function Combobox({ value, onChange, onSearch, placeholder, disabled, className }: ComboboxProps) {
+export function Combobox({ value, onChange, onSearch, placeholder, disabled, className, initialLabel }: ComboboxProps) {
   const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(initialLabel ?? '')
   const [options, setOptions] = useState<Option[]>([])
   const [loading, setLoading] = useState(false)
   const [activeIdx, setActiveIdx] = useState(-1)
